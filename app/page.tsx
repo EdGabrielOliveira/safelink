@@ -72,7 +72,10 @@ const HomePage = () => {
           </a>
         </div>
       )}
-      <p>* Limite temporário de Downloads por dia *</p>
+      <div className="flex flex-col text-center">
+        <p>* Limite temporário de Downloads por dia *</p>
+        <p className="font-semibold">API LIMITADA!</p>
+      </div>
     </div>
   );
 };
