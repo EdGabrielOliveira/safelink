@@ -42,8 +42,9 @@ const HomePage = () => {
   return (
     <div className="flex flex-col items-center justify-center bg-black/50 h-screen space-y-4 gap-4 text-white">
       <div className="flex flex-col gap-2 items-center justify-center ">
-        <h1 className="flex text-3xl">
+        <h1 className="flex text-3xl items-center justify-center">
           Safe<p className="font-semibold">Link</p>
+          <p className="pl-4 font-extralight font-sans text-sky-500 text-2xl items-center flex">Videos</p>
         </h1>
         <p>Baixe vídeos do Youtube livre de virús.</p>
       </div>
