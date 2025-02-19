@@ -6,19 +6,22 @@ const HomePage = () => {
   const [url, setUrl] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadLink, setDownloadLink] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(e.target.value);
+    setErrorMessage(null); // Limpa a mensagem de erro ao alterar a URL
   };
 
   const handleDownload = async () => {
-    if (!url) return alert("Insira a URL do vídeo");
+    if (!url) return setErrorMessage("Insira a URL do vídeo");
     if (!url.includes("youtube.com") && !url.includes("youtu.be")) {
-      return alert("URL do YouTube inválida");
+      return setErrorMessage("URL do YouTube inválida");
     }
 
     setIsDownloading(true);
     setDownloadLink(null);
+    setErrorMessage(null);
 
     try {
       const params = new URLSearchParams({ url });
@@ -30,7 +33,7 @@ const HomePage = () => {
 
       setDownloadLink(data.downloadUrl);
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Erro ao baixar");
+      setErrorMessage(error instanceof Error ? error.message : "Erro ao baixar");
     } finally {
       setIsDownloading(false);
     }
@@ -52,7 +55,7 @@ const HomePage = () => {
         onChange={handleUrlChange}
         onKeyDown={(e) => e.key === "Enter" && handleDownload()}
       />
-
+      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
       <button
         onClick={handleDownload}
         disabled={isDownloading}
