@@ -1,5 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  retries: number = 3,
+  delay: number = 1000,
+): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    const response = await fetch(url, options);
+    if (response.status !== 429) {
+      return response;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+  throw new Error("Exceeded maximum retries");
+}
+
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
 
@@ -10,7 +26,6 @@ export async function GET(req: NextRequest) {
   try {
     let videoId: string | null = null;
 
-    // Verificar se a URL é do formato de navegador ou mobile e extrair o ID do vídeo
     if (url.includes("youtube.com/watch")) {
       videoId = new URL(url).searchParams.get("v");
     } else if (url.includes("youtu.be/")) {
@@ -22,7 +37,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "ID do vídeo inválido" }, { status: 400 });
     }
 
-    const response = await fetch(
+    const response = await fetchWithRetry(
       `https://youtube-media-downloader.p.rapidapi.com/v2/video/details?videoId=${videoId}&videos=false&audios=true&subtitles=false`,
       {
         headers: {
@@ -46,12 +61,10 @@ export async function GET(req: NextRequest) {
       extension: string;
     }
 
-    // Verificando se a propriedade items existe e é um array
     if (!Array.isArray(data?.audios?.items)) {
       return NextResponse.json({ error: "Estrutura de resposta inválida" }, { status: 500 });
     }
 
-    // Adicionando log para verificar a estrutura dos itens
     console.log("Items:", data.audios.items);
 
     const formats = data.audios.items.filter((item: AudioFormat) => {
@@ -64,7 +77,6 @@ export async function GET(req: NextRequest) {
     }
 
     const bestFormat = formats.reduce((prev: AudioFormat, current: AudioFormat) => {
-      // Aqui você pode adicionar lógica para escolher o melhor formato, se necessário
       return current;
     });
 
