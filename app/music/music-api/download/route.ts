@@ -8,7 +8,16 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const videoId = new URL(url).searchParams.get("v");
+    let videoId: string | null = null;
+
+    // Verificar se a URL é do formato de navegador ou mobile e extrair o ID do vídeo
+    if (url.includes("youtube.com/watch")) {
+      videoId = new URL(url).searchParams.get("v");
+    } else if (url.includes("youtu.be/")) {
+      const urlParts = url.split("/");
+      videoId = urlParts[urlParts.length - 1].split("?")[0];
+    }
+
     if (!videoId) {
       return NextResponse.json({ error: "ID do vídeo inválido" }, { status: 400 });
     }
